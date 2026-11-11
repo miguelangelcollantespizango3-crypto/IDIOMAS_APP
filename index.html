@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyGlot - Aprende Inglés y Hebreo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #22d3ee;
+            --success: #34d399;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-area h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .logo-area p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-size: 1rem;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Language & Mode Selector */
+        .selectors {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Navigation Modules */
+        .nav-modules {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .module-tab {
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .module-tab.active {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        /* Main Content Card Container */
+        .content-area {
+            display: none;
+        }
+
+        .content-area.active {
+            display: block;
+        }
+
+        /* Flashcard Styles */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 320px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .card-face.back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, var(--card-bg), rgba(79, 70, 229, 0.03));
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .card-body {
+            text-align: center;
+            margin: auto;
+        }
+
+        .card-body h2 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .hebrew-font {
+            font-family: 'Frank Ruhl Libre', serif;
+            font-size: 3rem !important;
+            direction: rtl;
+        }
+
+        .card-body p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .card-footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        /* Controls under flashcard */
+        .card-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        /* Quiz View */
+        .quiz-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .quiz-question {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            padding: 14px 18px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: left;
+            color: var(--text-main);
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .quiz-option.incorrect {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* Glossary View */
+        .glossary-search {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .glossary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .glossary-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .glossary-item .term {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .glossary-item .definition {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-area">
+                <h1>PolyGlot 🌐</h1>
+                <p>Inglés & Hebreo Práctico</p>
+            </div>
+            <div class="header-controls">
+                <button class="icon-btn" id="themeToggle" title="Cambiar Tema">🌙</button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="value" id="streakCount">1</div>
+                <div class="label">Racha Días</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="learnedCount">0</div>
+                <div class="label">Estudiadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="accuracyRate">100%</div>
+                <div class="label">Precisión Quiz</div>
+            </div>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="selectors">
+            <button class="tab-btn active" data-lang="en">🇬🇧 Inglés Técnico</button>
+            <button class="tab-btn" data-lang="he">🇮🇱 Hebreo Básico</button>
+        </div>
+
+        <!-- Modules Navigation -->
+        <div class="nav-modules" id="moduleNav">
+            <!-- Cargado dinámicamente -->
+        </div>
+
+        <!-- Section Views (Flashcards, Quiz, Glossary) -->
+        <div class="nav-modules" style="margin-bottom: 16px;">
+            <button class="module-tab active" data-view="flashcards">🎴 Tarjetas</button>
+            <button class="module-tab" data-view="quiz">✍️ Quiz Rápido</button>
+            <button class="module-tab" data-view="glossary">📚 Glosario</button>
+        </div>
+
+        <!-- VIEW 1: FLASHCARDS -->
+        <div class="content-area active" id="view-flashcards">
+            <div class="flashcard-container" id="flashcardContainer">
+                <div class="flashcard" id="flashcard">
+                    <div class="card-face front">
+                        <div class="card-header">
+                            <span id="cardCategory">Categoría</span>
+                            <span>🔄 Toca para voltear</span>
+                        </div>
+                        <div class="card-body">
+                            <h2 id="cardFrontText">Hello</h2>
+                            <p id="cardPhoneticText">/həˈloʊ/</p>
+                        </div>
+                        <div class="card-footer" id="cardHintFront">Haz clic para ver la traducción</div>
+                    </div>
+                    <div class="card-face back">
+                        <div class="card-header">
+                            <span>Traducción y Ejemplo</span>
+                            <span>🔄</span>
+                        </div>
+                        <div class="card-body">
+                            <h2 id="cardBackText" style="color: var(--primary);">Hola</h2>
+                            <p id="cardExampleText" style="font-style: italic;">"Hello, welcome to the system."</p>
+                        </div>
+                        <div class="card-footer">Toca de nuevo para regresar</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-controls">
+                <button class="btn btn-secondary" id="prevCardBtn">⬅️ Anterior</button>
+                <button class="btn btn-primary" id="speakBtn">🔊 Escuchar</button>
+                <button class="btn btn-secondary" id="nextCardBtn">Siguiente ➡️</button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: QUIZ -->
+        <div class="content-area" id="view-quiz">
+            <div class="quiz-card">
+                <div class="quiz-question" id="quizQuestion">¿Qué significa este término?</div>
+                <div class="quiz-options" id="quizOptions">
+                    <!-- Opciones de quiz dinámicas -->
+                </div>
+            </div>
+            <button class="btn btn-primary" id="nextQuizBtn" style="width: 100%;">Siguiente Pregunta</button>
+        </div>
+
+        <!-- VIEW 3: GLOSSARY -->
+        <div class="content-area" id="view-glossary">
+            <input type="text" class="glossary-search" id="glossarySearch" placeholder="Buscar palabra...">
+            <div class="glossary-list" id="glossaryList">
+                <!-- Lista dinámica -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de Datos de Lecciones
+        const database = {
+            en: {
+                modules: [
+                    {
+                        name: "Verbos de Código & Acción",
+                        cards: [
+                            { front: "Run", phonetic: "/rʌn/", back: "Ejecutar / Correr", example: "Run the script in terminal.", audio: "Run" },
+                            { front: "Deploy", phonetic: "/dɪˈplɔɪ/", back: "Desplegar / Publicar", example: "Deploy the app to production.", audio: "Deploy" },
+                            { front: "Debug", phonetic: "/diːˈbʌɡ/", back: "Depurar / Buscar errores", example: "Debug the source code carefully.", audio: "Debug" },
+                            { front: "Fetch", phonetic: "/fɛtʃ/", back: "Obtener / Traer datos", example: "Fetch data from the API endpoint.", audio: "Fetch" },
+                            { front: "Update", phonetic: "/ʌpˈdeɪt/", back: "Actualizar", example: "Update dependencies regularly.", audio: "Update" }
+                        ]
+                    },
+                    {
+                        name: "Frases Cotidianas",
+                        cards: [
+                            { front: "How are you?", phonetic: "/haʊ ɑːr juː/", back: "¿Cómo estás?", example: "Hello, friend, how are you today?", audio: "How are you?" },
+                            { front: "Good morning", phonetic: "/ɡʊd ˈmɔːrnɪŋ/", back: "Buenos días", example: "Good morning, let's write code.", audio: "Good morning" },
+                            { front: "Thank you very much", phonetic: "/θæŋk juː ˈvɛri mʌtʃ/", back: "Muchas gracias", example: "Thank you very much for your help.", audio: "Thank you very much" },
+                            { front: "See you tomorrow", phonetic: "/siː juː təˈmɑːroʊ/", back: "Nos vemos mañana", example: "Goodbye, see you tomorrow.", audio: "See you tomorrow" }
+                        ]
+                    }
+                ]
+            },
+            he: {
+                modules: [
+                    {
+                        name: "El Alfabeto (Alef-Bet)",
+                        cards: [
+                            { front: "א", phonetic: "Alef (Silenciosa)", back: "Alef (Soporte de vocal)", example: "Primera letra del alfabeto.", audio: "א" },
+                            { front: "ב", phonetic: "Bet / Vet (B / V)", back: "Bet (Con punto suena B, sin punto V)", example: "Casa - Bayit", audio: "ב" },
+                            { front: "ג", phonetic: "Guímel (G)", back: "Guímel (Suena como G en gato)", example: "Gam - También", audio: "ג" },
+                            { front: "ד", phonetic: "Dálet (D)", back: "Dálet (Suena como D en dado)", example: "Davar - Cosa / Palabra", audio: "ד" },
+                            { front: "ה", phonetic: "Hei (H)", back: "Hei (H aspirada suave)", example: "Har - Montaña", audio: "ה" }
+                        ]
+                    },
+                    {
+                        name: "Palabras Básicas",
+                        cards: [
+                            { front: "שלום", phonetic: "Shalom", back: "Hola / Paz / Adiós", example: "Shalom, ¿cómo estás?", audio: "שלום" },
+                            { front: "תודה", phonetic: "Todá", back: "Gracias", example: "Todá rabah (Muchas gracias)", audio: "תודה" },
+                            { front: "כן", phonetic: "Ken", back: "Sí", example: "Ken, yo entiendo.", audio: "כן" },
+                            { front: "לא", phonetic: "Lo", back: "No", example: "Lo, gracias.", audio: "לא" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Estado Global de la App
+        let currentLang = 'en';
+        let currentModuleIndex = 0;
+        let currentCardIndex = 0;
+        let currentView = 'flashcards';
+        let learnedCount = 0;
+        let correctQuizCount = 0;
+        let totalQuizCount = 0;
+
+        // Elementos DOM
+        const themeToggle = document.getElementById('themeToggle');
+        const langBtns = document.querySelectorAll('.tab-btn[data-lang]');
+        const viewBtns = document.querySelectorAll('.module-tab[data-view]');
+        const moduleNav = document.getElementById('moduleNav');
+        
+        // Tarjeta DOM
+        const flashcard = document.getElementById('flashcard');
+        const cardCategory = document.getElementById('cardCategory');
+        const cardFrontText = document.getElementById('cardFrontText');
+        const cardPhoneticText = document.getElementById('cardPhoneticText');
+        const cardBackText = document.getElementById('cardBackText');
+        const cardExampleText = document.getElementById('cardExampleText');
+        const prevCardBtn = document.getElementById('prevCardBtn');
+        const nextCardBtn = document.getElementById('nextCardBtn');
+        const speakBtn = document.getElementById('speakBtn');
+
+        // Inicialización
+        function initApp() {
+            renderModuleNav();
+            loadCard();
+            setupEventListeners();
+            updateStats();
+        }
+
+        function renderModuleNav() {
+            moduleNav.innerHTML = '';
+            database[currentLang].modules.forEach((mod, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `module-tab ${idx === currentModuleIndex ? 'active' : ''}`;
+                btn.textContent = mod.name;
+                btn.onclick = () => {
+                    currentModuleIndex = idx;
+                    currentCardIndex = 0;
+                    renderModuleNav();
+                    loadCard();
+                    if(currentView === 'quiz') initQuiz();
+                };
+                moduleNav.appendChild(btn);
+            });
+        }
+
+        function loadCard() {
+            const module = database[currentLang].modules[currentModuleIndex];
+            const card = module.cards[currentCardIndex];
+            
+            flashcard.classList.remove('flipped');
+            cardCategory.textContent = module.name;
+            
+            cardFrontText.textContent = card.front;
+            cardPhoneticText.textContent = card.phonetic;
+            cardBackText.textContent = card.back;
+            cardExampleText.textContent = `"${card.example}"`;
+
+            // Ajustar tipografía si es hebreo
+            if (currentLang === 'he') {
+                cardFrontText.classList.add('hebrew-font');
+            } else {
+                cardFrontText.classList.remove('hebrew-font');
+            }
+        }
+
+        // Eventos de Navegación y Acciones
+        function setupEventListeners() {
+            // Tema Oscuro / Claro
+            themeToggle.onclick = () => {
+                const body = document.body;
+                if (body.getAttribute('data-theme') === 'light') {
+                    body.setAttribute('data-theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                } else {
+                    body.setAttribute('data-theme', 'light');
+                    themeToggle.textContent = '🌙';
+                }
+            };
+
+            // Cambio de Idioma
+            langBtns.forEach(btn => {
+                btn.onclick = (e) => {
+                    langBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentLang = e.target.getAttribute('data-lang');
+                    currentModuleIndex = 0;
+                    currentCardIndex = 0;
+                    document.documentElement.setAttribute('dir', currentLang === 'he' ? 'ltr' : 'ltr'); // Mantener interfaz cómoda
+                    renderModuleNav();
+                    loadCard();
+                    if(currentView === 'quiz') initQuiz();
+                    if(currentView === 'glossary') renderGlossary();
+                };
+            });
+
+            // Cambio de Vistas (Tarjetas, Quiz, Glosario)
+            viewBtns.forEach(btn => {
+                btn.onclick = (e) => {
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentView = e.target.getAttribute('data-view');
+                    
+                    document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+                    document.getElementById(`view-${currentView}`).classList.add('active');
+
+                    if(currentView === 'quiz') initQuiz();
+                    if(currentView === 'glossary') renderGlossary();
+                };
+            });
+
+            // Voltear Tarjeta
+            flashcard.onclick = () => {
+                flashcard.classList.toggle('flipped');
+                if (!flashcard.classList.contains('flipped')) {
+                    learnedCount++;
+                    updateStats();
+                }
+            };
+
+            // Botones Tarjetas Siguiente/Anterior
+            nextCardBtn.onclick = (e) => {
+                e.stopPropagation();
+                const cardsLen = database[currentLang].modules[currentModuleIndex].cards.length;
+                currentCardIndex = (currentCardIndex + 1) % cardsLen;
+                loadCard();
+            };
+
+            prevCardBtn.onclick = (e) => {
+                e.stopPropagation();
+                const cardsLen = database[currentLang].modules[currentModuleIndex].cards.length;
+                currentCardIndex = (currentCardIndex - 1 + cardsLen) % cardsLen;
+                loadCard();
+            };
+
+            // Síntesis de Voz
+            speakBtn.onclick = (e) => {
+                e.stopPropagation();
+                const card = database[currentLang].modules[currentModuleIndex].cards[currentCardIndex];
+                const utterance = new SpeechSynthesisUtterance(card.audio);
+                utterance.lang = currentLang === 'en' ? 'en-US' : 'he-IL';
+                window.speechSynthesis.speak(utterance);
+            };
+        }
+
+        // Lógica de Quiz
+        function initQuiz() {
+            const module = database[currentLang].modules[currentModuleIndex];
+            const cards = module.cards;
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            
+            const qEl = document.getElementById('quizQuestion');
+            const optEl = document.getElementById('quizOptions');
+            
+            qEl.textContent = `¿Cuál es el significado de: "${randomCard.front}"?`;
+            
+            // Generar opciones falsas y una verdadera
+            let options = [randomCard.back];
+            while(options.length < 3 && cards.length > 1) {
+                let randomWrong = cards[Math.floor(Math.random() * cards.length)].back;
+                if(!options.includes(randomWrong)) options.push(randomWrong);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            optEl.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => {
+                    totalQuizCount++;
+                    if(opt === randomCard.back) {
+                        btn.classList.add('correct');
+                        correctQuizCount++;
+                    } else {
+                        btn.classList.add('incorrect');
+                    }
+                    updateStats();
+                    setTimeout(initQuiz, 1200);
+                };
+                optEl.appendChild(btn);
+            });
+        }
+
+        document.getElementById('nextQuizBtn').onclick = initQuiz;
+
+        // Glosario
+        function renderGlossary() {
+            const listEl = document.getElementById('glossaryList');
+            const searchInput = document.getElementById('glossarySearch').value.toLowerCase();
+            listEl.innerHTML = '';
+
+            database[currentLang].modules.forEach(mod => {
+                mod.cards.forEach(card => {
+                    if(card.front.toLowerCase().includes(searchInput) || card.back.toLowerCase().includes(searchInput)) {
+                        const item = document.createElement('div');
+                        item.className = 'glossary-item';
+                        item.innerHTML = `
+                            <div>
+                                <div class="term" style="${currentLang === 'he' ? 'font-family: Frank Ruhl Libre, serif; font-size: 1.5rem;' : ''}">${card.front}</div>
+                                <div class="definition">${card.phonetic}</div>
+                            </div>
+                            <div style="font-weight: 600; color: var(--primary);">${card.back}</div>
+                        `;
+                        listEl.appendChild(item);
+                    }
+                });
+            });
+        }
+
+        document.getElementById('glossarySearch').oninput = renderGlossary;
+
+        function updateStats() {
+            document.getElementById('learnedCount').textContent = learnedCount;
+            const accuracy = totalQuizCount > 0 ? Math.round((correctQuizCount / totalQuizCount) * 100) : 100;
+            document.getElementById('accuracyRate').textContent = accuracy + '%';
+        }
+
+        // Iniciar aplicación al cargar
+        window.onload = initApp;
+    </script>
+</body>
+</html>
